@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Outlet, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { DEFAULT_DISPLAYS, displayLabel } from "@/lib/presentation-types";
 
@@ -6,8 +6,16 @@ export const Route = createFileRoute("/display")({
   head: () => ({
     meta: [{ title: "Display — Selecionar Monitor" }],
   }),
-  component: DisplaySelect,
+  component: DisplayLayout,
 });
+
+function DisplayLayout() {
+  const hasChild = useRouterState({
+    select: (s) => s.matches.some((m) => m.routeId === "/display/$id"),
+  });
+  if (hasChild) return <Outlet />;
+  return <DisplaySelect />;
+}
 
 function DisplaySelect() {
   const navigate = useNavigate();

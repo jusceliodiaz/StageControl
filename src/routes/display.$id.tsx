@@ -63,15 +63,31 @@ function DisplayKiosk() {
 
     init();
 
-    // Heartbeat every 8s
-    const heartbeat = setInterval(() => {
-      supabase
+    // Poll every 5s as fallback (handles WebSocket drops)
+    const poll = setInterval(async () => {
+      if (cancelled) return;
+      const { data } = await supabase
         .from("displays")
-        .update({ last_seen_at: new Date().toISOString() })
-        .eq("id", id);
-    }, 8000);
+        .select("*")
+        .eq("id", id)
+        .maybeSingle();
+      if (!cancelled && data) {
+        const row = data as DisplayRow;
+        loadMediaFor(row.current_media_id);
+        // Heartbeat + ping response in one query
+        const now = Date.now();
+        const updates: Record<string, string> = { last_seen_at: new Date().toISOString() };
+        if (row.ping_requested_at) {
+          const pingTime = new Date(row.ping_requested_at).getTime();
+          if (pingTime > lastPingRespondedAt.current) {
+            lastPingRespondedAt.current = now;
+          }
+        }
+        supabase.from("displays").update(updates).eq("id", id);
+      }
+    }, 5000);
 
-    // Realtime subscription
+    // Realtime subscription for instant updates
     const channel = supabase
       .channel(`display:${id}`)
       .on(
@@ -81,7 +97,6 @@ function DisplayKiosk() {
           const row = payload.new as DisplayRow;
           loadMediaFor(row.current_media_id);
 
-          // Respond to ping requests from control panel
           if (row.ping_requested_at) {
             const pingTime = new Date(row.ping_requested_at).getTime();
             if (pingTime > lastPingRespondedAt.current) {
@@ -90,11 +105,13 @@ function DisplayKiosk() {
           }
         },
       )
-      .subscribe();
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED" && !cancelled) setReady(true);
+      });
 
     return () => {
       cancelled = true;
-      clearInterval(heartbeat);
+      clearInterval(poll);
       supabase.removeChannel(channel);
     };
   }, [id, respondToPing]);

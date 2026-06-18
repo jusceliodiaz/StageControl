@@ -1,0 +1,1 @@
+ALTER TABLE public.displays ADD COLUMN IF NOT EXISTS ping_requested_at timestamp with time zone;

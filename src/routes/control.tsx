@@ -321,6 +321,7 @@ function ControlPanel() {
           displays={sortedDisplays}
           media={media}
           onClose={() => setShowSceneEditor(false)}
+          onUpload={() => setShowUpload(true)}
         />
       )}
     </div>
@@ -746,11 +747,13 @@ function SceneEditorDrawer({
   displays,
   media,
   onClose,
+  onUpload,
 }: {
   scene: SceneRow | null;
   displays: DisplayRow[];
   media: MediaItem[];
   onClose: () => void;
+  onUpload: () => void;
 }) {
   const [name, setName] = useState(scene?.name ?? "");
   const [assignments, setAssignments] = useState<Record<string, string | null>>(
@@ -815,7 +818,12 @@ function SceneEditorDrawer({
                 </div>
                 <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                   {media.length === 0 && (
-                    <div className="text-xs text-muted-foreground">Nenhuma mídia disponível.</div>
+                    <button
+                      onClick={onUpload}
+                      className="flex items-center gap-2 rounded-xl border border-dashed border-border px-4 py-3 text-xs text-muted-foreground transition hover:border-foreground/30 hover:text-foreground"
+                    >
+                      + Fazer upload de mídia
+                    </button>
                   )}
                   {media.map((m) => {
                     const cover = m.cover_url || m.image_url;

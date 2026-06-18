@@ -4,12 +4,8 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
-  HeadContent,
-  Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
-
-import appCss from "../styles.css?url";
+import { useEffect } from "react";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
@@ -73,54 +69,16 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { title: "Stage — Apresentações Imobiliárias" },
-      { name: "description", content: "Sistema de controle e display sincronizado para apresentações imobiliárias em stands de venda." },
-      { name: "theme-color", content: "#000000" },
-      { property: "og:title", content: "Stage — Apresentações Imobiliárias" },
-      { name: "twitter:title", content: "Stage — Apresentações Imobiliárias" },
-      { property: "og:description", content: "Sistema de controle e display sincronizado para apresentações imobiliárias em stands de venda." },
-      { name: "twitter:description", content: "Sistema de controle e display sincronizado para apresentações imobiliárias em stands de venda." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f55f6f06-5c99-4ec8-b343-63b3ec6c8efc/id-preview-643099ff--2e042b5c-c1f3-42e3-bd91-bc65fbe2ac7b.lovable.app-1781807831492.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f55f6f06-5c99-4ec8-b343-63b3ec6c8efc/id-preview-643099ff--2e042b5c-c1f3-42e3-bd91-bc65fbe2ac7b.lovable.app-1781807831492.png" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { property: "og:type", content: "website" },
-    ],
-    links: [
-      { rel: "stylesheet", href: appCss },
-      { rel: "preconnect", href: "https://rsms.me/" },
-      { rel: "stylesheet", href: "https://rsms.me/inter/inter.css" },
-    ],
-  }),
-  shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent,
 });
-
-function RootShell({ children }: { children: ReactNode }) {
-  return (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  );
-}
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
     </QueryClientProvider>
   );

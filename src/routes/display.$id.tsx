@@ -1,8 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { DisplayRow, MediaItem } from "@/lib/presentation-types";
-import { displayLabel } from "@/lib/presentation-types";
+import { DEFAULT_DISPLAYS, DISPLAY_LABELS, displayLabel } from "@/lib/presentation-types";
 
 export const Route = createFileRoute("/display/$id")({
   head: ({ params }) => ({
@@ -13,6 +13,7 @@ export const Route = createFileRoute("/display/$id")({
 
 function DisplayKiosk() {
   const { id } = Route.useParams();
+  const navigate = useNavigate();
   const [media, setMedia] = useState<MediaItem | null>(null);
   const [ready, setReady] = useState(false);
   const [interacted, setInteracted] = useState(false);
@@ -169,6 +170,25 @@ function DisplayKiosk() {
           </div>
         </div>
       )}
+
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 rounded-full bg-black/40 p-1.5 backdrop-blur">
+        {DEFAULT_DISPLAYS.map((slot) => (
+          <button
+            key={slot}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (slot !== id) navigate({ to: "/display/$id", params: { id: slot } });
+            }}
+            className={`rounded-full px-3 py-1 text-[10px] tracking-[0.16em] transition ${
+              slot === id
+                ? "bg-white text-black font-medium"
+                : "text-white/60 hover:text-white"
+            }`}
+          >
+            {DISPLAY_LABELS[slot]?.replace("Monitor ", "") ?? slot.toUpperCase()}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

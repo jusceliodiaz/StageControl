@@ -171,7 +171,7 @@ function DisplayKiosk() {
         </div>
       )}
 
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 rounded-full bg-black/40 p-1.5 backdrop-blur">
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 flex gap-1.5 rounded-full bg-black/40 p-1.5 backdrop-blur">
         {DEFAULT_DISPLAYS.map((slot) => (
           <button
             key={slot}

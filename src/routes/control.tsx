@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   CATEGORIES,
   DEFAULT_DISPLAYS,
+  DISPLAY_LABELS,
   displayLabel,
   isOnline,
   ONLINE_THRESHOLD_MS,
@@ -123,7 +124,9 @@ function ControlPanel() {
 
   const sortedDisplays = useMemo(() => {
     const order = new Map<string, number>(DEFAULT_DISPLAYS.map((d, i) => [d, i] as [string, number]));
-    return [...displays].sort((a, b) => (order.get(a.id) ?? 99) - (order.get(b.id) ?? 99));
+    return [...displays]
+      .filter((d) => d.id in DISPLAY_LABELS)
+      .sort((a, b) => (order.get(a.id) ?? 99) - (order.get(b.id) ?? 99));
   }, [displays]);
 
   async function sendToDisplay(displayId: string, mediaId: string | null) {
@@ -515,7 +518,7 @@ function MonitorCard({
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <span
-              className={`inline-block h-2 w-2 shrink-0 rounded-full ${online ? "bg-online" : "bg-offline"}`}
+              className={`inline-block h-2 w-2 shrink-0 rounded-full ${media ? "bg-online" : "bg-offline"}`}
               aria-hidden
             />
             <span className="truncate text-sm font-medium">{displayLabel(display.id)}</span>
